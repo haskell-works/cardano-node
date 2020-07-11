@@ -3,6 +3,11 @@ version: 2.1
 orbs:
   haskell: haskell-works/haskell-build@4.1.7
 
+executors:
+  darwin:
+    macos:
+      xcode: 10.0
+
 workflows:
   multiple-ghc-build:
     jobs:
@@ -28,5 +33,42 @@ workflows:
                     flags: -external-libsodium-vrf
                   EOF
           binary-cache-uri: ${BINARY_CACHE_URI-"http://hw-binary-cache-us-west-2-a.s3-website-us-west-2.amazonaws.com/archive"}
-          cabal-build-extra: --write-ghc-environment-files=ghc8.4.4+ --disable-benchmarks
-          cabal-test-extra: --test-show-details=direct --test-options='+RTS -g1' --disable-benchmarks
+          cabal-build-extra: --write-ghc-environment-files=ghc8.4.4+
+          cabal-test-extra: --test-show-details=direct --test-options='+RTS -g1'
+
+      - haskell/build-with-binary-cache:
+          name: Darwin GHC 8.6.5
+          executor: darwin
+          context: haskell-ci
+          fail-incoherent-builds: false
+          write-result-workspace: true
+          workspace-dir: workspace/osx
+          after-checkout:
+            - restore_cache:
+                keys:
+                  - homebrew-itself-cache
+            - run:
+                name: Install GHC
+                command: |
+                  brew update
+                  brew install jq md5sha1sum libsodium bc pkg-config shellcheck
+                  curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | BOOTSTRAP_HASKELL_NONINTERACTIVE=1 sh
+                  cat >> $BASH_ENV \<<EOF
+                  export PATH="$HOME/.ghcup/bin:$PATH"
+                  EOF
+                  source $BASH_ENV
+                  ghcup install 8.6.5
+                  ghcup set 8.6.5
+            - save_cache:
+                key: homebrew-itself-cache
+                # I cache Homebrew itself, not the stuff that is installed with it
+                # because brew update takes up to 4 minutes for some reason.
+                paths: [/usr/local/Homebrew]
+          before-build:
+            - run:
+                name: Configure to use extrnal libsodium vrf
+                command: |
+                  cat >> cabal.project.local \<<EOF
+                  package cardano-crypto-praos
+                    flags: -external-libsodium-vrf
+                  EOF
