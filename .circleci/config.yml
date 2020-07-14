@@ -51,16 +51,7 @@ workflows:
                 name: Install GHC
                 command: |
                   brew update
-                  echo "=====  jq ====="
-                  brew install jq
-                  echo "=====  libsodium ====="
-                  brew install libsodium
-                  echo "=====  bc ====="
-                  brew install bc
-                  echo "=====  pkg-config ====="
-                  brew install pkg-config
-                  echo "=====  shellcheck ====="
-                  brew install shellcheck
+                  brew install jq libsodium bc pkg-config shellcheck
                   curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | BOOTSTRAP_HASKELL_NONINTERACTIVE=1 sh
                   cat >> $BASH_ENV \<<EOF
                   export PATH="$HOME/.ghcup/bin:$PATH"
