@@ -70,6 +70,7 @@ jobs:
     - name: Build
       run: |
         cabal build all --enable-tests --enable-benchmarks --write-ghc-environment-files=always && \
+        echo "================================================================================" && \
         cabal build all --enable-tests --enable-benchmarks --write-ghc-environment-files=always -j 1
 
     - name: Git clone
