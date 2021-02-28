@@ -4,8 +4,8 @@ name:                   cardano-submit-api
 version:                3.1.2
 synopsis:               A web server that allows transactions to be POSTed to the cardano chain
 description:
-homepage:               https://github.com/input-output-hk/cardano-explorer
-bug-reports:            https://github.com/input-output-hk/cardano-explorer/issues
+homepage:               https://github.com/input-output-hk/cardano-node
+bug-reports:            https://github.com/input-output-hk/cardano-node/issues
 license:                Apache-2.0
 license-file:           LICENSE
 author:                 IOHK Engineering Team
@@ -26,7 +26,7 @@ common base16-bytestring            { build-depends: base16-bytestring          
 common bytestring                   { build-depends: bytestring                       >= 0.10.8.2                 }
 common cardano-binary               { build-depends: cardano-binary                   >= 1.5.0                    }
 common cardano-crypto-class         { build-depends: cardano-crypto-class             >= 2.0.0                    }
-common cardano-ledger               { build-depends: cardano-ledger                   >= 0.1.0.0                  }
+common cardano-ledger-byron         { build-depends: cardano-ledger-byron             >= 0.1.0.0                  }
 common cardano-ledger-shelley-ma    { build-depends: cardano-ledger-shelley-ma        >= 0.1.0.0                  }
 common cardano-prelude              { build-depends: cardano-prelude                  >= 0.1.0.0                  }
 common containers                   { build-depends: containers                       >= 0.6.2.1                  }
@@ -45,12 +45,14 @@ common ouroboros-consensus-shelley  { build-depends: ouroboros-consensus-shelley
 common ouroboros-network            { build-depends: ouroboros-network                >= 0.1.0.0                  }
 common ouroboros-network-framework  { build-depends: ouroboros-network-framework      >= 0.1.0.0                  }
 common prometheus                   { build-depends: prometheus                       >= 2.2.2                    }
+common protolude                    { build-depends: protolude                        >= 0.3.0                    }
 common servant                      { build-depends: servant                          >= 0.18.2                   }
 common servant-server               { build-depends: servant-server                   >= 0.18.2                   }
 common shelley-spec-ledger          { build-depends: shelley-spec-ledger              >= 0.1.0.0                  }
 common streaming-commons            { build-depends: streaming-commons                >= 0.2.2.1                  }
 common text                         { build-depends: text                             >= 1.2.3.2                  }
 common transformers                 { build-depends: transformers                     >= 0.5.6.2                  }
+common transformers-except          { build-depends: transformers-except              >= 0.1.1                    }
 common warp                         { build-depends: warp                             >= 3.3.13                   }
 common yaml                         { build-depends: yaml                             >= 0.11.5.0                 }
 
@@ -78,7 +80,7 @@ library
                       , cardano-api
                       , cardano-binary
                       , cardano-crypto-class
-                      , cardano-ledger
+                      , cardano-ledger-byron
                       , cardano-ledger-shelley-ma
                       , cardano-prelude
                       , containers
@@ -97,13 +99,14 @@ library
                       , ouroboros-network
                       , ouroboros-network-framework
                       , prometheus
+                      , protolude
                       , servant
                       , servant-server
                       , shelley-spec-ledger
                       , streaming-commons
                       , text
-                      , text
                       , transformers
+                      , transformers-except
                       , warp
                       , yaml
 
@@ -115,19 +118,18 @@ library
                       , Cardano.TxSubmit.CLI.Types
                       , Cardano.TxSubmit.Config
                       , Cardano.TxSubmit.ErrorRender
-                      , Cardano.TxSubmit.JsonOrphans
                       , Cardano.TxSubmit.Metrics
                       , Cardano.TxSubmit.Rest.Parsers
                       , Cardano.TxSubmit.Rest.Types
                       , Cardano.TxSubmit.Rest.Web
                       , Cardano.TxSubmit.Tracing.ToObjectOrphans
-                      , Cardano.TxSubmit.Tx
                       , Cardano.TxSubmit.Types
                       , Cardano.TxSubmit.Util
                       , Cardano.TxSubmit.Web
 
 executable cardano-submit-api
   import:               base, project-config
+                      , cardano-api
                       , cardano-submit-api
                       , optparse-applicative
   main-is:              Main.hs
@@ -136,6 +138,7 @@ executable cardano-submit-api
 
 test-suite unit
   import:               base, project-config
+                      , cardano-api
                       , cardano-submit-api
   type:                 exitcode-stdio-1.0
   main-is:              test.hs
